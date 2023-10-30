@@ -13,17 +13,12 @@ jobs:
       fail-fast: false
       matrix:
         py:
-          - "3.7"
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
         netapi:
           - "cherrypy"
-          - "tornado"
         salt:
-          - "v3004.2"
-          - "v3005.1"
           - "v3006.0"
           - "master"
         exclude:
