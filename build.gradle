@@ -1,0 +1,21 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+plugins {
+    id 'pl.allegro.tech.build.axion-release' version '1.7.0'
+}
+
+ext.pluginName = 'Salt Plugin'
+ext.pluginDescription = "Plugins for SaltStack via its API"
+ext.sopsCopyright = "Sebastian Engel"
+ext.sopsUrl = ""
+ext.buildDateString=new Date().format("yyyy-MM-dd'T'HH:mm:ssX")
+ext.archivesBaseName = "salt-plugin"
+ext.pluginBaseFolder = "."
+
+project.version = "0.1.0-SNAPSHOT"
+ext.archiveFilename = ext.archivesBaseName + '-' + version
+
+apply from: 'https://raw.githubusercontent.com/rundeck-plugins/build-zip/master/build.gradle'

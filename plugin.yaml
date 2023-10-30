@@ -1,0 +1,71 @@
+name: "@name@"
+rundeckPluginVersion: 2.0
+author: "@author@"
+description: "@description@"
+rundeckCompatibilityVersion: 3.x
+targetHostCompatibility: unix
+license: Apache 2.0
+tags:
+  - script
+  - NodeExecutor
+  - salt
+version: "@version@"
+date: "@date@"
+providers:
+  - name: salt-node-executor
+    service: NodeExecutor
+    title: Salt Adhoc Node Executor
+    description: Run commands via Salt-Api
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: salt_node_executor.py
+    config:
+      - type: String
+        name: runas
+        title: 'Run as'
+        description: 'Specify an alternative user to run the command on the node'
+        scope: Project
+      - type: String
+        name: cmd-run-args
+        title: 'Additional arguments'
+        description: "Specify additional arguments for salt's cmd.run execution module"
+        scope: Project
+      - type: String
+        name: url
+        title: 'API URL'
+        description: 'Address for the Salt-API endpoint, e.g. https://salt.example.com:9080'
+        scope: Project
+        renderingOptions:
+          groupName: API
+      - type: String
+        name: eauth
+        title: 'Eauth Module'
+        description: 'Configured backend for authenticating the credentials'
+        scope: Project
+        renderingOptions:
+          groupName: API
+      - type: String
+        name: user
+        title: Username
+        description: 'User or identifier used to authenticate with the Salt-API'
+        scope: Project
+        renderingOptions:
+          groupName: API
+      - type: String
+        name: password
+        title: Password
+        description: 'Key storage path for the pasword or secret used to authenticate with the Salt-API'
+        scope: Project
+        renderingOptions:
+          selectionAccessor: STORAGE_PATH
+          valueConversion: STORAGE_PATH_AUTOMATIC_READ
+          storage-file-meta-filter: "Rundeck-data-type=password"
+          groupName: API
+      - type: Boolean
+        name: verifySSL
+        title: 'Verify SSL'
+        description: 'Whether the script should verify the SSL connection to the Salt-API endpoint; Defaults to true'
+        default: true
+        scope: Project
+        renderingOptions:
+          groupName: API
