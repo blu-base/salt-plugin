@@ -9,7 +9,7 @@ from contents.salt_node_executor import main as main_function
 log = logging.getLogger(__name__)
 
 
-def test_trivial_command(rundeck_environment_base, session_minion_id, session_salt_api, capsys, monkeypatch):
+def test_trivial_command(rundeck_environment_base, session_minion_id, session_salt_api, capsys):
     assert session_salt_api.is_running()
 
     env = rundeck_environment_base.copy()
@@ -32,7 +32,7 @@ def test_trivial_command(rundeck_environment_base, session_minion_id, session_sa
     assert sys_exit.value.code == 0
 
 
-def test_jinja_command(rundeck_environment_base, session_minion_id, session_salt_api, capsys, monkeypatch):
+def test_jinja_command(rundeck_environment_base, session_minion_id, session_salt_api, capsys):
     assert session_salt_api.is_running()
 
     env = rundeck_environment_base.copy()
