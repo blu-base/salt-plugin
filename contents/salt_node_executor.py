@@ -65,7 +65,7 @@ def main():
     log.debug(f'Received raw response: {response}')
 
     # filter response
-    minion_response = response.get('return', [{}])[0].get(data['node'])
+    minion_response = response.get('return', [{}])[0].get(data['node'], {})
     data = minion_response.get('ret', 'No response received')
     return_code = minion_response.get('retcode', 1)
 
