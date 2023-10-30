@@ -58,7 +58,7 @@ def main():
 
     # sending payload
     try:
-        response = client.low(lowstate=low_state)
+        response = client.low(lowstate=[low_state])
     except PepperException as exception:
         print(str(exception))
         sys.exit(1)
