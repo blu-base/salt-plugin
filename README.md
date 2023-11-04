@@ -37,6 +37,8 @@ and its ACL to be used by rundeck.
 This plugin forwards the specified command to the `cmd.run` execution module via
 the Salt API. It uses the `local` client of salt's `netapi`.
 
+Node names in Rundeck must match the respective minion id in salt.
+
 Plugin Configuration:
 * `Run As` sets the user in who's context the comand is run
 * `Additional Arguments` can be used to set further keyword arguments for
