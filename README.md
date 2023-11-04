@@ -35,12 +35,12 @@ and its ACL to be used by rundeck.
 
 ### NodeExecutor
 This plugin forwards the specified command to the `cmd.run` execution module via
-the Salt API.
+the Salt API. It uses the `local` client of salt's `netapi`.
 
-Configuration:
+Plugin Configuration:
 * `Run As` sets the user in who's context the comand is run
 * `Additional Arguments` can be used to set further keyword arguments for
-  salt's `cmd.run` module. See its documentation for further details: 
+  salt's `cmd.run` module. See its documentation for further details:
   [here](https://docs.saltproject.io/en/latest/ref/modules/all/salt.modules.cmdmod.html#salt.modules.cmdmod.run)
 
 
