@@ -15,6 +15,7 @@ data_items = [
     DataItem('host', 'RD_NODE_HOSTNAME', 'str'),
     DataItem('runas', 'RD_CONFIG_RUNAS', 'str'),
     DataItem('args', 'RD_CONFIG_CMD_RUN_ARGS', 'shstr'),
+    DataItem('node-args', 'RD_NODE_SALT_CMD_RUN_ARGS', 'shstr'),
     DataItem('url', 'RD_CONFIG_URL', 'str'),
     DataItem('eauth', 'RD_CONFIG_EAUTH', 'str'),
     DataItem('user', 'RD_CONFIG_USER', 'str'),
@@ -36,6 +37,9 @@ def main():
 
     if data['args'] is not None and data['args'] != '':
         args.extend(data['args'])
+
+    if data['node-args'] is not None and data['node-args'] != '':
+        args.extend(data['node-args'])
 
     # payload
     low_state = {

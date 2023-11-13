@@ -62,6 +62,19 @@ Plugin Configuration:
 * `Additional Arguments` can be used to set further keyword arguments for
   salt's `cmd.run` module. Optional. See its documentation for further details:
   [here](https://docs.saltproject.io/en/latest/ref/modules/all/salt.modules.cmdmod.html#salt.modules.cmdmod.run)
+* The node attribute `salt-cmd-run-args` can also be used to provide additional
+  arguments to salt's `cmd.run` module, individually per node.
+
+  E.g.:
+  ```yaml
+  minion.example.org:
+    hostname: minion.example.org
+    nodename: foobar_minion
+    username:
+    node-executor: salt-node-executor
+    salt-cmd-run-args: "env='{\"FOO\": \"bar\"}'"
+  ```
+
 
 
 ## Build
