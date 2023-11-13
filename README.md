@@ -58,9 +58,9 @@ documentation](https://docs.rundeck.com/docs/manual/document-format-reference/).
 
 
 Plugin Configuration:
-* `Run As` sets the user in who's context the comand is run
+* `Run As` sets the user in who's context the comand is run. Optional.
 * `Additional Arguments` can be used to set further keyword arguments for
-  salt's `cmd.run` module. See its documentation for further details:
+  salt's `cmd.run` module. Optional. See its documentation for further details:
   [here](https://docs.saltproject.io/en/latest/ref/modules/all/salt.modules.cmdmod.html#salt.modules.cmdmod.run)
 
 
