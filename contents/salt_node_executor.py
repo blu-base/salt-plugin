@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 # Rundeck environment variables to be parsed
 data_items = [
     DataItem('cmd', 'RD_EXEC_COMMAND', 'str'),
-    DataItem('node', 'RD_NODE_NAME', 'str'),
+    DataItem('host', 'RD_NODE_HOSTNAME', 'str'),
     DataItem('runas', 'RD_CONFIG_RUNAS', 'str'),
     DataItem('args', 'RD_CONFIG_CMD_RUN_ARGS', 'shstr'),
     DataItem('url', 'RD_CONFIG_URL', 'str'),
@@ -40,7 +40,7 @@ def main():
     # payload
     low_state = {
         'client': 'local',
-        'tgt': data['node'],
+        'tgt': data['host'],
         'fun': 'cmd.run',
         'arg': args,
         # full return to get retcode
@@ -65,7 +65,7 @@ def main():
     log.debug(f'Received raw response: {response}')
 
     # filter response
-    minion_response = response.get('return', [{}])[0].get(data['node'], {})
+    minion_response = response.get('return', [{}])[0].get(data['host'], {})
     data = minion_response.get('ret', 'No response received')
     return_code = minion_response.get('retcode', 1)
 

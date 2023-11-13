@@ -16,7 +16,7 @@ def test_trivial_command(rundeck_environment_base, session_minion_id, session_sa
 
     env.update({
         'RD_EXEC_COMMAND': 'echo hello world',
-        'RD_NODE_NAME': session_minion_id,
+        'RD_NODE_HOSTNAME': session_minion_id,
     })
 
     with mock.patch.dict(os.environ, env):
@@ -39,7 +39,7 @@ def test_jinja_command(rundeck_environment_base, session_minion_id, session_salt
 
     env.update({
         'RD_EXEC_COMMAND': "echo {{ grains['id'] }}",
-        'RD_NODE_NAME': session_minion_id,
+        'RD_NODE_HOSTNAME': session_minion_id,
         'RD_CONFIG_CMD_RUN_ARGS': 'template=jinja timeout=10'
     })
 
