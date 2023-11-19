@@ -19,6 +19,7 @@ providers:
     plugin-type: script
     script-interpreter: python -u
     script-file: salt_node_executor.py
+    script-args: ''
     config:
       - type: String
         name: runas
@@ -29,6 +30,59 @@ providers:
         name: cmd-run-args
         title: 'Additional arguments'
         description: "Specify additional arguments for salt's cmd.run execution module"
+        scope: Project
+      - type: String
+        name: url
+        title: 'API URL'
+        description: 'Address for the Salt-API endpoint, e.g. https://salt.example.com:9080'
+        scope: Project
+        renderingOptions:
+          groupName: API
+      - type: String
+        name: eauth
+        title: 'Eauth Module'
+        description: 'Configured backend for authenticating the credentials'
+        scope: Project
+        renderingOptions:
+          groupName: API
+      - type: String
+        name: user
+        title: Username
+        description: 'User or identifier used to authenticate with the Salt-API'
+        scope: Project
+        renderingOptions:
+          groupName: API
+      - type: String
+        name: password
+        title: Password
+        description: 'Key storage path for the pasword or secret used to authenticate with the Salt-API'
+        scope: Project
+        renderingOptions:
+          selectionAccessor: STORAGE_PATH
+          valueConversion: STORAGE_PATH_AUTOMATIC_READ
+          storage-file-meta-filter: "Rundeck-data-type=password"
+          groupName: API
+      - type: Boolean
+        name: verifySSL
+        title: 'Verify SSL'
+        description: 'Whether the script should verify the SSL connection to the Salt-API endpoint; Defaults to true'
+        default: true
+        scope: Project
+        renderingOptions:
+          groupName: API
+  - name: salt-file-copier
+    service: FileCopier
+    title: Salt File Copier
+    description: Upload files via Salt-Api; not intended for large files
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: salt_file_copier.py
+    script-args: ''
+    config:
+      - type: String
+        name: salt-file-copy-chunk-size
+        title: 'Chunk size'
+        description: 'Specify the Chunk size used to transmit files via the Salt Event Bus'
         scope: Project
       - type: String
         name: url

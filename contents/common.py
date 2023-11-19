@@ -69,6 +69,8 @@ def parse_data(data_items: List[DataItem]) -> dict:
                 env_value = str_to_bool(env_value)
             elif item.data_type == "shstr":
                 env_value = shstr(env_value)
+            elif item.data_type == "int":
+                env_value = int(env_value)
             data[item.key] = env_value
         else:
             log.debug(f'data_item {item.key} is empty')
