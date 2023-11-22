@@ -29,6 +29,19 @@ def main():
     data = parse_data(data_items)
     log.debug(f"Data: {sanitize_dict(data, ['password'])}")
 
+    # Sanity checks
+    if data['cmd'] is None or data['cmd'] == '':
+        log.warning('No command specified. There is nothing to do.')
+        sys.exit(0)
+
+    if data['host'] is None or data['host'] == '':
+        log.critical('There is no hostname defined for the Node. Command not send.')
+        sys.exit(1)
+
+    if data['url'] is None or data['url'] == '':
+        log.critical('No URL to Salt API specified.')
+        sys.exit(1)
+
     # prepare payload contents
     args = [data['cmd']]
 
