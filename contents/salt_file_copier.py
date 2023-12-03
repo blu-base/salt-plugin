@@ -21,21 +21,6 @@ console.setStream(sys.stderr)
 
 log.addHandler(console)
 
-# Rundeck environment variables to be parsed
-data_items = [
-    DataItem('host', 'RD_NODE_HOSTNAME', 'str'),
-    DataItem('src', 'RD_FILE_COPY_FILE', 'str'),
-    DataItem('dest', 'RD_FILE_COPY_DESTINATION', 'str'),
-    DataItem('chunk-size', 'RD_CONFIG_SALT_FILE_COPY_CHUNK_SIZE', 'int'),
-    DataItem('url', 'RD_CONFIG_URL', 'str'),
-    DataItem('eauth', 'RD_CONFIG_EAUTH', 'str'),
-    DataItem('user', 'RD_CONFIG_USER', 'str'),
-    DataItem('password', 'RD_CONFIG_PASSWORD', 'str'),
-    DataItem('verify_ssl', 'RD_CONFIG_VERIFYSSL', 'bool'),
-    DataItem('log-level', 'RD_JOB_LOGLEVEL', 'str'),
-]
-
-
 def compress_file(file_obj, compresslevel=9, chunk_size=1048576):
     """
     Copied from saltstack's salt.utils.gzip_util.compress_file
@@ -72,7 +57,6 @@ def compress_file(file_obj, compresslevel=9, chunk_size=1048576):
         except AttributeError:
             pass
 
-
 def file_mode(path):
     """
     Get mode from path.
@@ -90,7 +74,21 @@ def main():
 
     """
     # parse environment provided by rundeck
+    data_items = [
+        DataItem('host', 'RD_NODE_HOSTNAME', 'str'),
+        DataItem('src', 'RD_FILE_COPY_FILE', 'str'),
+        DataItem('dest', 'RD_FILE_COPY_DESTINATION', 'str'),
+        DataItem('chunk-size', 'RD_CONFIG_SALT_FILE_COPY_CHUNK_SIZE', 'int'),
+        DataItem('url', 'RD_CONFIG_URL', 'str'),
+        DataItem('eauth', 'RD_CONFIG_EAUTH', 'str'),
+        DataItem('user', 'RD_CONFIG_USER', 'str'),
+        DataItem('password', 'RD_CONFIG_PASSWORD', 'str'),
+        DataItem('verify_ssl', 'RD_CONFIG_VERIFYSSL', 'bool'),
+        DataItem('log-level', 'RD_JOB_LOGLEVEL', 'str'),
+    ]
+
     data = parse_data(data_items)
+    log.debug(f"Data: {sanitize_dict(data, ['password'])}")
 
     # use rundeck's log level if defined
     if data['log-level'] == 'DEBUG':
@@ -101,20 +99,35 @@ def main():
 
     # as specified in the documentation for a script file copier plugin, the
     # first line in stdout must be the destination path
-    print(data['dest'])
+    print(data['dest'] if data['dest'] is not None else "")
 
-    log.debug(f"Data: {sanitize_dict(data, ['password'])}")
+    # Sanity checks
+    if data['host'] is None or data['host'] == '':
+        msg = 'There is no hostname defined for the Node. File not send.'
+        log.error(msg)
+        print(msg, file=sys.stderr)
+        sys.exit(1)
 
-    normalized_src_path = os.path.normpath(data['src'])
+    if data['src'] is None or data['src'] == '':
+        msg = 'No source file specified. No File send.'
+        log.error(msg)
+        print(msg, file=sys.stderr)
+        sys.exit(1)
 
-    if os.path.exists(normalized_src_path) and \
-            os.path.isfile(normalized_src_path) and \
-            os.access(normalized_src_path, os.R_OK):
+    if data['dest'] is None or data['dest'] == '':
+        msg = 'No destination file specified. No File send.'
+        log.error(msg)
+        print(msg, file=sys.stderr)
+        sys.exit(1)
 
-        src = normalized_src_path
+    # making sure the source can be read
+    src = os.path.normpath(data['src'])
+
+    if os.path.exists(src) and \
+            os.path.isfile(src) and \
+            os.access(src, os.R_OK):
 
         log.debug(f'Normalized source path is: {src}')
-
     else:
         log.error(f'The specified source file is not readable: {data["src"]}')
         sys.exit(1)
@@ -135,8 +148,6 @@ def main():
         print(str(exception))
         sys.exit(1)
     log.debug(f'Logging into API: {response}')
-
-    #with open(src, 'rb') as src_file:
 
     index = 1
     for chunk in compress_file(src, chunk_size=data['chunk-size']):
@@ -183,6 +194,8 @@ def main():
             sys.exit(return_code)
 
         index += 1
+
+    sys.exit()
 
 
 if __name__ == '__main__':
