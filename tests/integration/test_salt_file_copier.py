@@ -95,7 +95,7 @@ def test_empty_destination_file(rundeck_environment_base, session_minion_id, ses
 
     out, err = capsys.readouterr()
 
-    assert out == f'\n'
+    assert out == '\n'
     assert 'No destination file specified. No File send.' in err
 
     # test shouldn't have run into an error

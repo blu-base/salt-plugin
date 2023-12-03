@@ -21,6 +21,7 @@ console.setStream(sys.stderr)
 
 log.addHandler(console)
 
+
 def compress_file(file_obj, compresslevel=9, chunk_size=1048576):
     """
     Copied from saltstack's salt.utils.gzip_util.compress_file
@@ -56,6 +57,7 @@ def compress_file(file_obj, compresslevel=9, chunk_size=1048576):
             file_obj.close()
         except AttributeError:
             pass
+
 
 def file_mode(path):
     """
