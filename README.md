@@ -129,5 +129,7 @@ cp build/libs/salt-plugin.zip $RDECK_BASE/libext
 
 This repository contains derivate work from the following projects:
 
+* [salt](https://github.com/saltstack/salt)
 * [salt-gen-source](https://github.com/amendlik/salt-gen-resource)
 * [pepper](https://github.com/saltstack/pepper)
+
