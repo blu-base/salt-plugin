@@ -1,6 +1,7 @@
 -r requirements.txt
 pytest
 pytest-salt-factories[salt]
+pytest-mock
 CherryPy
 setuptools
 importlib-metadata

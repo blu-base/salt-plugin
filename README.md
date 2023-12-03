@@ -7,10 +7,13 @@ and it's master.
 
 Currently the following plugins are included:
   * NodeExecutor
+  * FileCopier
 
 Use cases:
   * Run Adhoc commands
+  * Embed Scripts in a Workflow
   * Command Node Step
+  * Upload files
 
 ## Requirements
 
@@ -75,7 +78,31 @@ Plugin Configuration:
     salt-cmd-run-args: "env='{\"FOO\": \"bar\"}'"
   ```
 
+### FileCopier
+This plugin forwards files to a Node via the Salt API. In combination with the
+Salt NodeExecutor, the inline script plugin can be used as well.
 
+This FileCopier is intended for small files only, since it's sending files via
+Salt's bus.
+
+A Node's `hostname` in Rundeck must match the respective minion id in salt.
+The nodes file in yaml format would contain entries such as:
+```yaml
+minion.example.org:
+  description: A server with salt-minion
+  hostname: minion.example.org
+  nodename: minion.example.org
+  username:
+  osArch: x86_64
+  osFamily: unix
+  osName: Linux
+  tags: 'salt-minion,server'
+  node-executor: salt-node-executor
+  file-copier: salt-file-copier
+```
+
+Configuration:
+* `Chunksize` can modify the chunk size send via the Salt Event bus.
 
 ## Build
 

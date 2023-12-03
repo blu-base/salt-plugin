@@ -9,23 +9,22 @@ from common import DataItem, parse_data, sanitize_dict
 
 log = logging.getLogger(__name__)
 
-# Rundeck environment variables to be parsed
-data_items = [
-    DataItem('cmd', 'RD_EXEC_COMMAND', 'str'),
-    DataItem('host', 'RD_NODE_HOSTNAME', 'str'),
-    DataItem('runas', 'RD_CONFIG_RUNAS', 'str'),
-    DataItem('args', 'RD_CONFIG_CMD_RUN_ARGS', 'shstr'),
-    DataItem('node-args', 'RD_NODE_SALT_CMD_RUN_ARGS', 'shstr'),
-    DataItem('url', 'RD_CONFIG_URL', 'str'),
-    DataItem('eauth', 'RD_CONFIG_EAUTH', 'str'),
-    DataItem('user', 'RD_CONFIG_USER', 'str'),
-    DataItem('password', 'RD_CONFIG_PASSWORD', 'str'),
-    DataItem('verify_ssl', 'RD_CONFIG_VERIFYSSL', 'bool'),
-]
-
 
 def main():
     # parse environment provided by rundeck
+    data_items = [
+        DataItem('cmd', 'RD_EXEC_COMMAND', 'str'),
+        DataItem('host', 'RD_NODE_HOSTNAME', 'str'),
+        DataItem('runas', 'RD_CONFIG_RUNAS', 'str'),
+        DataItem('args', 'RD_CONFIG_CMD_RUN_ARGS', 'shstr'),
+        DataItem('node-args', 'RD_NODE_SALT_CMD_RUN_ARGS', 'shstr'),
+        DataItem('url', 'RD_CONFIG_URL', 'str'),
+        DataItem('eauth', 'RD_CONFIG_EAUTH', 'str'),
+        DataItem('user', 'RD_CONFIG_USER', 'str'),
+        DataItem('password', 'RD_CONFIG_PASSWORD', 'str'),
+        DataItem('verify_ssl', 'RD_CONFIG_VERIFYSSL', 'bool'),
+    ]
+
     data = parse_data(data_items)
     log.debug(f"Data: {sanitize_dict(data, ['password'])}")
 
