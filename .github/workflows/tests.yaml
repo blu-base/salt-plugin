@@ -16,10 +16,11 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
         netapi:
           - "cherrypy"
         salt:
-          - "v3006.4"
+          - "v3006.7"
           - "master"
         exclude:
           - py: "3.9"
