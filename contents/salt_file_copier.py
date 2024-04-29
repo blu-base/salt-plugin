@@ -88,7 +88,6 @@ def main():
         DataItem('verify_ssl', 'RD_CONFIG_VERIFYSSL', 'bool'),
         DataItem('log-level', 'RD_JOB_LOGLEVEL', 'str'),
     ]
-
     data = parse_data(data_items)
     log.debug(f"Data: {sanitize_dict(data, ['password'])}")
 
@@ -103,24 +102,13 @@ def main():
     # first line in stdout must be the destination path
     print(data['dest'] if data['dest'] is not None else "")
 
-    # Sanity checks
-    if data['host'] is None or data['host'] == '':
-        msg = 'There is no hostname defined for the Node. File not send.'
-        log.error(msg)
-        print(msg, file=sys.stderr)
-        sys.exit(1)
-
-    if data['src'] is None or data['src'] == '':
-        msg = 'No source file specified. No File send.'
-        log.error(msg)
-        print(msg, file=sys.stderr)
-        sys.exit(1)
-
-    if data['dest'] is None or data['dest'] == '':
-        msg = 'No destination file specified. No File send.'
-        log.error(msg)
-        print(msg, file=sys.stderr)
-        sys.exit(1)
+    # Sanity checks for required input
+    for key in ['host', 'src', 'dest', 'url', 'eauth', 'user', 'password']:
+        if not data[key]:
+            msg = f'No {key} specified. File not sent.'
+            log.error(msg)
+            print(msg, file=sys.stderr)
+            sys.exit(1)
 
     # making sure the source can be read
     src = os.path.normpath(data['src'])
@@ -151,8 +139,7 @@ def main():
         sys.exit(1)
     log.debug(f'Logging into API: {response}')
 
-    index = 1
-    for chunk in compress_file(src, chunk_size=data['chunk-size']):
+    for index, chunk in enumerate(compress_file(src, chunk_size=data['chunk-size']), start=1):
         chunk = base64.b64encode(chunk).decode('ascii')
         append = index > 1
 
@@ -194,8 +181,6 @@ def main():
                 )
             )
             sys.exit(return_code)
-
-        index += 1
 
     sys.exit(0)
 

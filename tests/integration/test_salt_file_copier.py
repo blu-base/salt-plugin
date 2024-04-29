@@ -39,7 +39,7 @@ def test_empty_hostname(rundeck_environment_base, hostname, capsys, mocker):
     out, err = capsys.readouterr()
 
     assert out == f'{dest}\n'
-    assert 'There is no hostname defined for the Node. File not send.' in err
+    assert 'No host specified. File not sent.' in err
     # test shouldn't have run into an error
     assert sys_exit.value.code == 1
 
@@ -67,7 +67,7 @@ def test_empty_source_file(rundeck_environment_base, session_minion_id, session_
     out, err = capsys.readouterr()
 
     assert out == f'{str(dest)}\n'
-    assert 'No source file specified. No File send.' in err
+    assert 'No src specified. File not sent.' in err
 
     # test shouldn't have run into an error
     assert sys_exit.value.code == 1
@@ -96,7 +96,7 @@ def test_empty_destination_file(rundeck_environment_base, session_minion_id, ses
     out, err = capsys.readouterr()
 
     assert out == '\n'
-    assert 'No destination file specified. No File send.' in err
+    assert 'No dest specified. File not sent.' in err
 
     # test shouldn't have run into an error
     assert sys_exit.value.code == 1
