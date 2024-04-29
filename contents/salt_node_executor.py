@@ -36,18 +36,12 @@ def main():
         log_level = 'ERROR'
     log.setLevel(logging.getLevelName(log_level))
 
-    # Sanity checks
-    if data['cmd'] is None or data['cmd'] == '':
-        log.warning('No command specified. There is nothing to do.')
-        sys.exit(0)
-
-    if data['host'] is None or data['host'] == '':
-        log.critical('There is no hostname defined for the Node. Command not send.')
-        sys.exit(1)
-
-    if data['url'] is None or data['url'] == '':
-        log.critical('No URL to Salt API specified.')
-        sys.exit(1)
+    # Sanity checks for required input
+    for key in ['cmd', 'host', 'url', 'eauth', 'user', 'password']:
+        if not data[key]:
+            msg = f'No {key} specified. Command not send.'
+            log.error(msg)
+            sys.exit(1)
 
     # prepare payload contents
     args = [data['cmd']]
