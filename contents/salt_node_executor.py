@@ -23,10 +23,18 @@ def main():
         DataItem('user', 'RD_CONFIG_USER', 'str'),
         DataItem('password', 'RD_CONFIG_PASSWORD', 'str'),
         DataItem('verify_ssl', 'RD_CONFIG_VERIFYSSL', 'bool'),
+        DataItem('log-level', 'RD_JOB_LOGLEVEL', 'str'),
     ]
 
     data = parse_data(data_items)
     log.debug(f"Data: {sanitize_dict(data, ['password'])}")
+
+    # use rundeck's log level if defined
+    if data['log-level'] == 'DEBUG':
+        log_level = 'DEBUG'
+    else:
+        log_level = 'ERROR'
+    log.setLevel(logging.getLevelName(log_level))
 
     # Sanity checks
     if data['cmd'] is None or data['cmd'] == '':
