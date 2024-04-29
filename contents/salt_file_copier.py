@@ -34,6 +34,15 @@ def compress_file(file_obj, compresslevel=9, chunk_size=1048576):
         to form a compressed file. This function is designed to break up a file
         into compressed chunks for transport and decompression/reassembly on a
         remote host.
+
+    :param file_obj: The file object or path to the file to be compressed.
+    :type file_obj: file or str
+    :param compresslevel: The compression level, ranging from 0 to 9. Defaults to 9.
+    :type compresslevel: int, optional
+    :param chunk_size: The size of each chunk to read and compress, in bytes. Defaults to 1048576 (1MB).
+    :type chunk_size: int, optional
+    :return: The compressed data chunk.
+    :rtype: bytes
     """
     try:
         bytes_read = int(chunk_size)
@@ -64,6 +73,11 @@ def file_mode(path):
     Get mode from path.
 
     Returns file permissions including the sticky bit as integer
+
+    :param path: The path to the file.
+    :type path: str
+    :return: The file permissions.
+    :rtype: int
     """
     try:
         return int(oct(stat.S_IMODE(os.stat(path).st_mode)))
@@ -73,7 +87,9 @@ def file_mode(path):
 
 def main():
     """
+    Main function to execute the file transfer via Salt-API
 
+    This function retrieves necessary data from environment variables provided by Rundeck.
     """
     # parse environment provided by rundeck
     data_items = [
@@ -98,8 +114,8 @@ def main():
         log_level = 'ERROR'
     log.setLevel(logging.getLevelName(log_level))
 
-    # as specified in the documentation for a script file copier plugin, the
-    # first line in stdout must be the destination path
+    # Output the destination path as first line of stdout
+    # as specified in the documentation for a script file copier plugin
     print(data['dest'] if data['dest'] is not None else "")
 
     # Sanity checks for required input
@@ -125,12 +141,12 @@ def main():
     dest = os.path.normpath(data['dest'])
     log.debug(f'Normalized destination path is: {dest}')
 
-    # chunk_size fall-back
+    # set default chunk-size if not provided
     if data['chunk-size'] is None or data['chunk-size'] == "":
         data['chunk-size'] = 1048576
     log.debug(f'Chunk-size: {data["chunk-size"]}')
 
-    # login to api
+    # login to the API
     client = Pepper(api_url=data['url'], ignore_ssl_errors=not data['verify_ssl'])
     try:
         response = client.login(username=data['user'], password=data['password'], eauth=data['eauth'])
@@ -152,13 +168,12 @@ def main():
             'tgt': data['host'],
             'fun': 'cp.recv_chunked',
             'arg': args,
-            # full return to get retcode
-            'full_return': True,
+            'full_return': True,  # full return to get retcode
         }
 
         log.debug(f'Low state Payload: {low_state}')
 
-        # sending payload
+        # send payload
         try:
             response = client.low(lowstate=[low_state])
         except PepperException as exception:
