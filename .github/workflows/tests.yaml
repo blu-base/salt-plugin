@@ -25,6 +25,10 @@ jobs:
         exclude:
           - py: "3.9"
             salt: "master"
+          # py3.12 emoved module backports.ssl_match_hostname
+          # https://github.com/saltstack/salt/issues/65360
+          - py: "3.12"
+            salt: "v3006.7"
     steps:
       - name: Setup python for test ${{ matrix.py }}
         uses: actions/setup-python@v5
