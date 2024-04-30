@@ -11,6 +11,11 @@ log = logging.getLogger(__name__)
 
 
 def main():
+    """
+    Main function to execute remote commands via Salt-API
+
+    This function retrieves necessary data from environment variables provided by Rundeck.
+    """
     # parse environment provided by rundeck
     data_items = [
         DataItem('cmd', 'RD_EXEC_COMMAND', 'str'),
@@ -23,23 +28,25 @@ def main():
         DataItem('user', 'RD_CONFIG_USER', 'str'),
         DataItem('password', 'RD_CONFIG_PASSWORD', 'str'),
         DataItem('verify_ssl', 'RD_CONFIG_VERIFYSSL', 'bool'),
+        DataItem('log-level', 'RD_JOB_LOGLEVEL', 'str'),
     ]
 
     data = parse_data(data_items)
     log.debug(f"Data: {sanitize_dict(data, ['password'])}")
 
-    # Sanity checks
-    if data['cmd'] is None or data['cmd'] == '':
-        log.warning('No command specified. There is nothing to do.')
-        sys.exit(0)
+    # use rundeck's log level if defined
+    if data['log-level'] == 'DEBUG':
+        log_level = 'DEBUG'
+    else:
+        log_level = 'ERROR'
+    log.setLevel(logging.getLevelName(log_level))
 
-    if data['host'] is None or data['host'] == '':
-        log.critical('There is no hostname defined for the Node. Command not send.')
-        sys.exit(1)
-
-    if data['url'] is None or data['url'] == '':
-        log.critical('No URL to Salt API specified.')
-        sys.exit(1)
+    # Sanity checks for required input
+    for key in ['cmd', 'host', 'url', 'eauth', 'user', 'password']:
+        if not data[key]:
+            msg = f'No {key} specified. Command not send.'
+            log.error(msg)
+            sys.exit(1)
 
     # prepare payload contents
     args = [data['cmd']]
@@ -59,11 +66,10 @@ def main():
         'tgt': data['host'],
         'fun': 'cmd.run',
         'arg': args,
-        # full return to get retcode
-        'full_return': True,
+        'full_return': True,  # full return to get retcode
     }
 
-    # login to api
+    # login to the API
     client = Pepper(api_url=data['url'], ignore_ssl_errors=not data['verify_ssl'])
     try:
         response = client.login(username=data['user'], password=data['password'], eauth=data['eauth'])
@@ -72,7 +78,7 @@ def main():
         sys.exit(1)
     log.debug(f'Logging into API: {response}')
 
-    # sending payload
+    # send payload
     try:
         response = client.low(lowstate=[low_state])
     except PepperException as exception:
@@ -85,7 +91,7 @@ def main():
     data = minion_response.get('ret', 'No response received')
     return_code = minion_response.get('retcode', 1)
 
-    # rundeck reads stdout
+    # print response to stdout for Rundeck to pickup
     print(data)
 
     # rundeck reads return code

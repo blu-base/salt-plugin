@@ -90,6 +90,15 @@ def session_master_config_overrides(request, salt_api_port, salt_api_backend):
     }
 
 
+@pytest.helpers.register
+def remove_stale_minion_key(master, minion_id):
+    key_path = os.path.join(master.config["pki_dir"], "minions", minion_id)
+    if os.path.exists(key_path):
+        os.unlink(key_path)
+    else:
+        log.debug("The minion(id=%r) key was not found at %s", minion_id, key_path)
+
+
 @pytest.fixture(scope='session')
 def session_minion_factory(session_master_factory):
     """
