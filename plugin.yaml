@@ -123,3 +123,85 @@ providers:
         scope: Project
         renderingOptions:
           groupName: API
+- name: salt-resource-model-source
+    service: ResourceModelSource
+    title: Salt Minion Resource Model Source
+    description: Use Salt minions as node source
+    plugin-type: script
+    script-interpreter: python -u
+    script-file: salt_resource_node_source.py
+    script-args: ''
+    resource-format: resourcejson
+    config:
+      - type: String
+        name: prefix
+        title: 'Nodename prefix'
+        description: "Optionally prefix the nodename. By default no prefix is used, hence the nodename equals the minion's id"
+      - type: String
+        name: tgt
+        title: 'Minion target'
+        description: "Use salt's compound targeting to control the generated notes. Defaults to '*'"
+        scope: Project
+        default: '*'
+      - type: String
+        name: tags
+        title: 'Node tags'
+        description: 'Create node tags from the values of grains. comma-separated list for multiple grains.'
+        scope: Project
+      - type: String
+        name: attributes
+        title: 'Node attributes'
+        description: 'Create node attributes from grains and their values. Comma-separated list for multiple grains. Nested values of grains are not supported, but nested keys are.'
+        scope: Project
+        default: 'master,'
+      - type: Integer
+        name: timeout
+        title: 'Minion timeout'
+        description: 'Specify minion timeout to gather grains'
+        scope: Project
+        default: 10
+      - type: Integer
+        name: gather-timeout
+        title: 'Gather timeout'
+        description: 'Specify the master can wait for responses of minions'
+        scope: Project
+        default: 20
+      - type: String
+        name: url
+        title: 'API URL'
+        description: 'Address for the Salt-API endpoint, e.g. https://salt.example.com:9080'
+        scope: Project
+        renderingOptions:
+          groupName: API
+      - type: String
+        name: eauth
+        title: 'Eauth Module'
+        description: 'Configured backend for authenticating the credentials'
+        scope: Project
+        renderingOptions:
+          groupName: API
+      - type: String
+        name: user
+        title: Username
+        description: 'User or identifier used to authenticate with the Salt-API'
+        scope: Project
+        renderingOptions:
+          groupName: API
+      - type: String
+        name: password
+        title: Password
+        description: 'Key storage path for the pasword or secret used to authenticate with the Salt-API'
+        scope: Project
+        renderingOptions:
+          selectionAccessor: STORAGE_PATH
+          valueConversion: STORAGE_PATH_AUTOMATIC_READ
+          storage-file-meta-filter: "Rundeck-data-type=password"
+          groupName: API
+      - type: Boolean
+        name: verifySSL
+        title: 'Verify SSL'
+        description: 'Whether the script should verify the SSL connection to the Salt-API endpoint; Defaults to true'
+        default: true
+        scope: Project
+        renderingOptions:
+          groupName: API
