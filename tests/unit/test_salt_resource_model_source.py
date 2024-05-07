@@ -20,16 +20,16 @@ def test_string_to_unique_set(input_str, expected_set):
     # Test cases for prepare_grains function
 
     # Empty input returns set of defaults
-    ({}, set(['id', 'cpuarch', 'os', 'os_family', 'osrelease'])),
+    ({}, set(['id', 'cpuarch', 'os', 'os_family', 'osrelease', 'hostname'])),
 
     # Empty tags and attributes return set of defaults
-    ({'tags': '', 'attributes': ''}, set(['id', 'cpuarch', 'os', 'os_family', 'osrelease'])),
+    ({'tags': '', 'attributes': ''}, set(['id', 'cpuarch', 'os', 'os_family', 'osrelease', 'hostname'])),
 
     # Tags and attributes with duplicate values return set with default keys and that value
-    ({'tags': 'abc', 'attributes': 'abc'}, set(['id', 'cpuarch', 'os', 'os_family', 'osrelease', 'abc'])),
+    ({'tags': 'abc', 'attributes': 'abc'}, set(['id', 'cpuarch', 'os', 'os_family', 'osrelease', 'hostname', 'abc'])),
 
     # Tags and attributes with multiple values return set with default keys and those values
-    ({'tags': 'abc', 'attributes': 'a,b'}, set(['id', 'cpuarch', 'os', 'os_family', 'osrelease', 'abc', 'a', 'b'])),
+    ({'tags': 'abc', 'attributes': 'a,b'}, set(['id', 'cpuarch', 'os', 'os_family', 'osrelease', 'hostname', 'abc', 'a', 'b'])),
 ])
 def test_prepare_grains(input_data, expected_set):
     assert prepare_grains(input_data) == expected_set

@@ -52,7 +52,7 @@ def prepare_grains(data: dict) -> set:
     """
     Prepare grains for tags and attributes.
     """
-    needed_grains = set(['id', 'cpuarch', 'os', 'os_family', 'osrelease'])
+    needed_grains = set(['id', 'cpuarch', 'os', 'os_family', 'osrelease', 'hostname'])
 
     needed_tags  = string_to_unique_set(data.get('tags', None))
     needed_attributes = string_to_unique_set(data.get('attributes', None))
@@ -163,11 +163,17 @@ def generate_resource_model(minions, data):
 
     resource_model = {}
     for minion, ret in minions.items():
-        nodename = minion if not data['prefix'] else f"{data['prefix']}{minion}"
+        nodename = minion if data['prefix'] is None else f"{data['prefix']}{minion}"
+
+        if not isinstance(ret, dict) or ret.get('ret') is None:
+            log.warning(f'Minion {minion} does not have parsable return')
+            continue
 
         grains = ret['ret']
+
         model = {
             'nodename': nodename,
+            'hostname': minion,
             'osArch': 'x86_64' if grains['cpuarch'] in ['x86_64', 'AMD64'] else grains['cpuarch'],
             'osName': grains['os'],
             'osVersion': grains['osrelease'],
@@ -194,7 +200,7 @@ def main():
         DataItem('tgt', 'RD_CONFIG_TGT', 'str'),
         DataItem('tags', 'RD_CONFIG_TAGS', 'str'),
         DataItem('attributes', 'RD_CONFIG_ATTRIBUTES', 'str'),
-        DataItem('prefix', 'RD_CONFIG_REFIX', 'str'),
+        DataItem('prefix', 'RD_CONFIG_PREFIX', 'str'),
         DataItem('timeout', 'RD_CONFIG_TIMEOUT', 'int'),
         DataItem('gather-timeout', 'RD_CONFIG_GATHER_TIMEOUT', 'int'),
         DataItem('url', 'RD_CONFIG_URL', 'str'),
