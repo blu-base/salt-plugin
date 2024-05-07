@@ -146,14 +146,14 @@ providers:
       - type: String
         name: tags
         title: 'Node tags'
-        description: 'Create node tags from the values of grains. comma-separated list for multiple grains.'
+        description: 'Create node tags from the values of grains. Use comma-separated list for multiple grains.'
         scope: Project
       - type: String
         name: attributes
         title: 'Node attributes'
-        description: 'Create node attributes from grains and their values. Comma-separated list for multiple grains. Nested values of grains are not supported, but nested keys are.'
+        description: 'Create node attributes from grains and their values. use comma-separated list for multiple grains. Nested values of grains are not supported, but nested keys are, such as systemd.version .'
         scope: Project
-        default: 'master,'
+        default: 'master'
       - type: Integer
         name: timeout
         title: 'Minion timeout'

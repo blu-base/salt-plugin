@@ -102,7 +102,7 @@ def test_empty_destination_file(rundeck_environment_base, session_minion_id, ses
     assert sys_exit.value.code == 1
 
 
-@pytest.mark.parametrize("file_length", [1000, 1024*3072])
+@pytest.mark.parametrize("file_length", [1000, 1024*2])
 def test_file_transfer(rundeck_environment_base, session_minion_id, session_salt_api, file_length, tmp_path, capsys):
     assert session_salt_api.is_running()
 
@@ -115,6 +115,7 @@ def test_file_transfer(rundeck_environment_base, session_minion_id, session_salt
         'RD_NODE_HOSTNAME': session_minion_id,
         'RD_FILE_COPY_FILE': str(src),
         'RD_FILE_COPY_DESTINATION': str(dest),
+        'RD_CONFIG_SALT_FILE_COPY_CHUNK_SIZE': str(1024),
     })
 
     # create test file

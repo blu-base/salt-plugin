@@ -11,7 +11,7 @@ from common import DataItem, parse_data, sanitize_dict
 log = logging.getLogger(__name__)
 
 
-def configure_logging(log_level):
+def configure_logging(log_level: str):
     """
     Configure logging based on the provided log level.
     """
@@ -19,7 +19,7 @@ def configure_logging(log_level):
     log.setLevel(logging.getLevelName(log_level))
 
 
-def validate_required_inputs(data):
+def validate_required_inputs(data: dict):
     """
     Validate required data items provided by Rundeck
     """
@@ -35,29 +35,27 @@ def validate_required_inputs(data):
         data['tgt'] = '*'
 
 
-def tag_grains(data):
-    grains = set()
-    if data.get('tags') is not None:
-        grains = set(data['tags'].split(','))
+def string_to_unique_set(src: str) -> set:
+    """
+    Return set with unique values from input string.
+    """
+    if isinstance(src, str):
+        ret = set(src.split(','))
+        ret.discard('')
 
-    return grains
+        return ret
 
-
-def attributes_grains(data):
-    grains = set()
-    if data.get('attributes') is not None:
-        grains = set(data.get('attributes', '').split(','))
-    return grains
+    return set()
 
 
-def prepare_grains(data):
+def prepare_grains(data: dict) -> set:
     """
     Prepare grains for tags and attributes.
     """
     needed_grains = set(['id', 'cpuarch', 'os', 'os_family', 'osrelease'])
 
-    needed_tags  = tag_grains(data)
-    needed_attributes = attributes_grains(data)
+    needed_tags  = string_to_unique_set(data.get('tags', None))
+    needed_attributes = string_to_unique_set(data.get('attributes', None))
 
     log.debug(f'Tag grains: {needed_tags}')
     log.debug(f'Attribute grains: {needed_attributes}')
@@ -107,7 +105,7 @@ def collect_minions_grains(data, all_needed_grains):
     return minions
 
 
-def get_os_family(os_family):
+def get_os_family(os_family: str) -> str:
     """
     Map OS family to a standardized format.
     """
@@ -121,33 +119,38 @@ def get_os_family(os_family):
     return os_family_map.get(os_family, os_family)
 
 
-def process_tags(grains, needed_tags):
+def process_tags(metadata: dict, needed_tags: set) -> set:
     """
-    Extract tags from grains.
+    Extract tags from grains or pillar.
     """
-    tags = []
+    tags = set()
     for tag in needed_tags:
-        tag_value = grains.get(tag, None)
-        if isinstance(tag_value, list):
-            tags.extend(tag_value)
-        elif tag_value:
-            tags.append(tag_value)
+        tag_value = metadata.get(tag)
+        if tag_value is None:
+            continue
+        if isinstance(tag_value, (str, int, float)):
+            tags.add(str(tag_value))
+        elif isinstance(tag_value, list):
+            tags.update(str(elem) for elem in tag_value if isinstance(elem, (str, int, float)))
+        else:
+            log.warning(f'The tag {tag} is not a supported type (str, int, float, or a list of these types)')
     return tags
 
 
-def process_attributes(grains, needed_attributes, reserved_keys):
+def process_attributes(metadata, needed_attributes, reserved_keys):
     """
-    Process attributes from grains.
+    Process attributes from grains or pillar.
     """
     processed_attributes = {}
     for attribute in needed_attributes:
         attribute_name = f'salt-{attribute}' if attribute in reserved_keys else attribute
-        attribute_value = grains.get(attribute)
-        if attribute_value:
-            if isinstance(attribute_value, (str, int)):
-                processed_attributes[attribute_name] = attribute_value
-            else:
-                log.warning(f'The grain {attribute} is not a string. Nested values are not supported attribute values.')
+        attribute_value = metadata.get(attribute, '')
+        if isinstance(attribute_value, (str, int, float)):
+            processed_attributes[attribute_name] = str(attribute_value)
+        else:
+            log.warning(f'The attribute {attribute} is not a string. Nested values are not supported attribute values.')
+            processed_attributes[attribute_name] = ''
+
     return processed_attributes
 
 
@@ -169,10 +172,10 @@ def generate_resource_model(minions, data):
             'osName': grains['os'],
             'osVersion': grains['osrelease'],
             'osFamily': get_os_family(grains['os_family']),
-            'tags': process_tags(grains, tag_grains(data))
+            'tags': list(process_tags(grains, string_to_unique_set(data['tags'])))
         }
 
-        processed_attributes = process_attributes(grains, attributes_grains(data), reserved_keys)
+        processed_attributes = process_attributes(grains, string_to_unique_set(data['attributes']), reserved_keys)
         model.update(processed_attributes)
 
         resource_model[nodename] = model
