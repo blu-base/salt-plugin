@@ -123,13 +123,13 @@ providers:
         scope: Project
         renderingOptions:
           groupName: API
-- name: salt-resource-model-source
+  - name: salt-resource-model-source
     service: ResourceModelSource
     title: Salt Minion Resource Model Source
     description: Use Salt minions as node source
     plugin-type: script
     script-interpreter: python -u
-    script-file: salt_resource_node_source.py
+    script-file: salt_resource_model_source.py
     script-args: ''
     resource-format: resourcejson
     config:
