@@ -8,6 +8,7 @@ and it's master.
 Currently the following plugins are included:
   * NodeExecutor
   * FileCopier
+  * Resource Model Source
 
 Use cases:
   * Run Adhoc commands
@@ -103,6 +104,12 @@ minion.example.org:
 
 Configuration:
 * `Chunksize` can modify the chunk size send via the Salt Event bus.
+
+### Resource Model Source
+This plugin dynamically generates Nodes from the Salt API. Grains can be
+selected to retrieve tags and attributes. By default all minions connected to a
+salt-master are targeted, as long as they return valid information.
+
 
 ## Build
 
