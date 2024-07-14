@@ -164,7 +164,6 @@ providers:
         title: 'Node attributes from pillar'
         description: 'Create node attributes from pillar and their values. use comma-separated list for multiple grains. Nested values of grains are not supported, but nested keys are, such as systemd.version.'
         scope: Project
-        default: 'master'
       - type: Integer
         name: timeout
         title: 'Minion timeout'

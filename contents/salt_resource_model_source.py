@@ -103,9 +103,9 @@ def collect_minions_grains(client, data, all_needed_grains):
     }
 
     if data['timeout'] is not None:
-        low_state['kwarg']['timeout'] = data['timeout']
+        low_state['timeout'] = data['timeout']
     if data['gather-timeout'] is not None:
-        low_state['kwarg']['gather_job_timeout'] = data['gather-timeout']
+        low_state['gather_job_timeout'] = data['gather-timeout']
 
     log.debug(f'Compiled low_state: {low_state}')
 
@@ -136,9 +136,9 @@ def collect_minions_pillar(client, data, all_needed_pillar):
     }
 
     if data['timeout'] is not None:
-        low_state['kwarg']['timeout'] = data['timeout']
+        low_state['timeout'] = data['timeout']
     if data['gather-timeout'] is not None:
-        low_state['kwarg']['gather_job_timeout'] = data['gather-timeout']
+        low_state['gather_job_timeout'] = data['gather-timeout']
 
     log.debug(f'Compiled low_state: {low_state}')
 
@@ -241,7 +241,7 @@ def generate_resource_model(minions_grains, minions_pillar, data):
         pillar = minions_pillar.get(minion, {}).get('ret', {})
 
         # extend existing tags
-        pillar_tags = process_tags(pillar, string_to_unique_set(data['tags']))
+        pillar_tags = process_tags(pillar, string_to_unique_set(data['pillar-tags']))
         resource_model[nodename]['tags'] += pillar_tags
 
         # append attributes
