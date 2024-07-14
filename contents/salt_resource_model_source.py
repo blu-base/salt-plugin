@@ -288,8 +288,6 @@ def main():
     all_needed_grains = prepare_grains(data)
     all_needed_pillar = prepare_pillar(data)
 
-
-
     # open session with Salt-API
     client = login(data)
 
