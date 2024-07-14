@@ -154,6 +154,17 @@ providers:
         description: 'Create node attributes from grains and their values. use comma-separated list for multiple grains. Nested values of grains are not supported, but nested keys are, such as systemd.version .'
         scope: Project
         default: 'master'
+      - type: String
+        name: pillar-tags
+        title: 'Node tags from pillar'
+        description: 'Create node tags from the values of pillar. Use comma-separated list for multiple grains.'
+        scope: Project
+      - type: String
+        name: pillar-attributes
+        title: 'Node attributes from pillar'
+        description: 'Create node attributes from pillar and their values. use comma-separated list for multiple grains. Nested values of grains are not supported, but nested keys are, such as systemd.version.'
+        scope: Project
+        default: 'master'
       - type: Integer
         name: timeout
         title: 'Minion timeout'

@@ -63,7 +63,32 @@ def prepare_grains(data: dict) -> set:
     return needed_grains | needed_tags | needed_attributes
 
 
-def collect_minions_grains(data, all_needed_grains):
+def prepare_pillar(data: dict) -> set:
+    """
+    Prepare pillar for tags and attributes.
+    """
+    needed_tags = string_to_unique_set(data.get('pillar-tags', None))
+    needed_attributes = string_to_unique_set(data.get('pillar-attributes', None))
+
+    log.debug(f'Tag pillar: {needed_tags}')
+    log.debug(f'Attribute pillar: {needed_attributes}')
+
+    return needed_tags | needed_attributes
+
+def login(data):
+    # Login to the API
+    client = Pepper(api_url=data['url'], ignore_ssl_errors=not data['verify_ssl'])
+    try:
+        response = client.login(username=data['user'], password=data['password'], eauth=data['eauth'])
+    except PepperException as exception:
+        print(str(exception))
+        sys.exit(1)
+    log.debug(f'Logging into API: {response}')
+
+    return client
+
+
+def collect_minions_grains(client, data, all_needed_grains):
     """
     Execute low state API call and return minions response.
     """
@@ -84,14 +109,38 @@ def collect_minions_grains(data, all_needed_grains):
 
     log.debug(f'Compiled low_state: {low_state}')
 
-    # Login to the API
-    client = Pepper(api_url=data['url'], ignore_ssl_errors=not data['verify_ssl'])
+    # Send payload
     try:
-        response = client.login(username=data['user'], password=data['password'], eauth=data['eauth'])
+        response = client.low(lowstate=[low_state])
     except PepperException as exception:
         print(str(exception))
         sys.exit(1)
-    log.debug(f'Logging into API: {response}')
+    log.debug(f'Received raw response: {response}')
+
+    minions = response.get('return', [{}])[0]
+    return minions
+
+
+def collect_minions_pillar(client, data, all_needed_pillar):
+    """
+    Execute low state API call and return minions response.
+    """
+    # Prepare payload
+    low_state = {
+        'client': 'local',
+        'tgt': data['tgt'],
+        'fun': 'pillar.item',
+        'arg': list(all_needed_pillar),
+        'kwarg': {},
+        'full_return': True,
+    }
+
+    if data['timeout'] is not None:
+        low_state['kwarg']['timeout'] = data['timeout']
+    if data['gather-timeout'] is not None:
+        low_state['kwarg']['gather_job_timeout'] = data['gather-timeout']
+
+    log.debug(f'Compiled low_state: {low_state}')
 
     # Send payload
     try:
@@ -154,7 +203,7 @@ def process_attributes(metadata, needed_attributes, reserved_keys):
     return processed_attributes
 
 
-def generate_resource_model(minions, data):
+def generate_resource_model(minions_grains, minions_pillar, data):
     """
     Generate resource model from minions and grains data.
     """
@@ -162,7 +211,7 @@ def generate_resource_model(minions, data):
                      'osVersion', 'editUrl', 'remoteUrl'}
 
     resource_model = {}
-    for minion, ret in minions.items():
+    for minion, ret in minions_grains.items():
         nodename = minion if data['prefix'] is None else f"{data['prefix']}{minion}"
 
         if not isinstance(ret, dict) or ret.get('ret') is None:
@@ -186,6 +235,19 @@ def generate_resource_model(minions, data):
 
         resource_model[nodename] = model
 
+    # process pillar for valid nodes
+    for nodename, value in resource_model.items():
+        minion = value['hostname']
+        pillar = minions_pillar.get(minion, {}).get('ret', {})
+
+        # extend existing tags
+        pillar_tags = process_tags(pillar, string_to_unique_set(data['tags']))
+        resource_model[nodename]['tags'] += pillar_tags
+
+        # append attributes
+        processed_attributes = process_attributes(pillar, string_to_unique_set(data['pillar-attributes']), reserved_keys)
+        resource_model.update({nodename: processed_attributes})
+
     return resource_model
 
 
@@ -200,6 +262,8 @@ def main():
         DataItem('tgt', 'RD_CONFIG_TGT', 'str'),
         DataItem('tags', 'RD_CONFIG_TAGS', 'str'),
         DataItem('attributes', 'RD_CONFIG_ATTRIBUTES', 'str'),
+        DataItem('pillar-tags', 'RD_CONFIG_PILLAR_TAGS', 'str'),
+        DataItem('pillar-attributes', 'RD_CONFIG_PILLAR_ATTRIBUTES', 'str'),
         DataItem('prefix', 'RD_CONFIG_PREFIX', 'str'),
         DataItem('timeout', 'RD_CONFIG_TIMEOUT', 'int'),
         DataItem('gather-timeout', 'RD_CONFIG_GATHER_TIMEOUT', 'int'),
@@ -222,10 +286,21 @@ def main():
 
     # queue the Salt-API
     all_needed_grains = prepare_grains(data)
-    minions = collect_minions_grains(data, all_needed_grains)
+    all_needed_pillar = prepare_pillar(data)
+
+
+
+    # open session with Salt-API
+    client = login(data)
+
+    # collect metadata
+    grains = collect_minions_grains(client, data, all_needed_grains)
+    pillar = {}
+    if len(all_needed_pillar) > 0:
+        pillar = collect_minions_pillar(client, data, all_needed_pillar)
 
     # compile the Rundeck Resource Model
-    resource_model = generate_resource_model(minions, data)
+    resource_model = generate_resource_model(grains, pillar, data)
 
     # print response to stdout for Rundeck to pickup
     print(json.dumps(resource_model))
