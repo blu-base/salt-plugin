@@ -246,7 +246,7 @@ def generate_resource_model(minions_grains, minions_pillar, data):
 
         # append attributes
         processed_attributes = process_attributes(pillar, string_to_unique_set(data['pillar-attributes']), reserved_keys)
-        resource_model.update({nodename: processed_attributes})
+        resource_model[nodename].update(processed_attributes)
 
     return resource_model
 
